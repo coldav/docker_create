@@ -5,6 +5,7 @@ RUN apt-get update
 # FROM INFRA UBUNTU BASE
 
 #RUN apt-get install -y git git-crypt wget curl jq xz-utils build-essential zlib1g-dev lsb-release libssl-dev
+RUN apt-get install -y wget
 RUN apt-get install -y git build-essential
 # Set the timezone, required to avoid hanging on input
 ENV TZ=Europe/London
@@ -21,10 +22,10 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 #RUN sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
 
 # Add VulkanSDK latest package repository
-#RUN wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add -
-#RUN wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list
+RUN wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add -
+RUN wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list
 # Sync the two above package repositories
-#RUN apt-get update
+RUN apt-get update
 
 # Add clang-tidy
 #RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor - | tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
@@ -37,7 +38,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Install minimum requirements MUST HAVE
 RUN apt-get install --yes cmake libtinfo-dev
 # Install vulkan-sdk
-#RUN apt-get install --yes vulkan-sdk
+RUN apt-get install --yes vulkan-sdk
 # Install 32-bit requirements
 #RUN apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev
 # Install Arm requirements
