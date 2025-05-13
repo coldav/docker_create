@@ -1,0 +1,49 @@
+name: publish docker images
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - '.github/workflows/publish_docker_images.yml'
+    - '.github/dockerfiles/**'
+
+jobs:
+
+  # publish-docker-images:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #     attestations: write
+  #     id-token: write
+  #   env:
+  #     REGISTRY: ghcr.io/coldav
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+  #   - name: Login to GitHub Container Registry
+  #     uses: docker/login-action@v1
+  #     with:
+  #       registry: ghcr.io
+  #       username: ${{ github.actor }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Build and push the Docker images
+  #     run: |
+  #       # for dockerfile in ${{ github.workspace }}/.github/dockerfiles/Dockerfile_* ; do
+  #       for dockerfile in ${{ github.workspace }}/.github/dockerfiles/Dockerfile_22.04 ; do
+  #         VERSION=${dockerfile##*_}
+  #         docker build . -f $dockerfile --tag $REGISTRY/ock_ubuntu_$VERSION:base
+  #         docker push $REGISTRY/ock_ubuntu_$VERSION:base
+  #       done
+
+  publish-try-docker-images:
+      # needs: publish-docker-images
+      runs-on: ubuntu-22.04
+      container:
+        image: ghcr.io/coldav/ock_ubuntu_22.04:base
+        volumes:
+          - ${{github.workspace}}:${{github.workspace}}
+      steps:
+        - name: Do nothing
+          run: echo done

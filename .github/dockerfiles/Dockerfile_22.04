@@ -1,0 +1,101 @@
+FROM ubuntu:22.04
+
+RUN apt-get update 
+
+# FROM INFRA UBUNTU BASE
+
+#RUN apt-get install -y git git-crypt wget curl jq xz-utils build-essential zlib1g-dev lsb-release libssl-dev
+RUN apt-get install -y git build-essential
+# Set the timezone, required to avoid hanging on input
+ENV TZ=Europe/London
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# FROM 22 OCK BASE - if not already added
+
+# Enable ability to install foreign packages for cross compilation
+#RUN dpkg --add-architecture i386
+#RUN dpkg --add-architecture arm64
+#RUN dpkg --add-architecture riscv64
+
+# The main archive only hosts amd64 and i386, we need to add ports for arm64 and riscv64.
+#RUN sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
+
+# Add VulkanSDK latest package repository
+#RUN wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add -
+#RUN wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.243-jammy.list https://packages.lunarg.com/vulkan/1.3.243/lunarg-vulkan-1.3.243-jammy.list
+# Sync the two above package repositories
+#RUN apt-get update
+
+# Add clang-tidy
+#RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor - | tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
+#RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main' | tee /etc/apt/sources.list.d/llvm.list >/dev/null
+#RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main' | tee -a /etc/apt/sources.list.d/llvm.list >/dev/null
+#RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-20 main' | tee -a /etc/apt/sources.list.d/llvm.list >/dev/null
+#RUN apt-get update
+#RUN apt-get install --yes clang-tidy-19
+
+# Install minimum requirements MUST HAVE
+RUN apt-get install --yes cmake libtinfo-dev
+# Install vulkan-sdk
+#RUN apt-get install --yes vulkan-sdk
+# Install 32-bit requirements
+#RUN apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev
+# Install Arm requirements
+#RUN apt-get install --yes gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+# Install AArch64 requirements
+#RUN apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+# Install RISC-V requirements
+#RUN apt-get install --yes gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+# Install recommended packages
+RUN apt-get install --yes python3 python3-pip
+# ninja-build doxygen
+# Install documentation packages
+# RUN apt-get install --yes graphviz latexmk texlive-xetex xindy texlive-fonts-extra
+# Install CI utility packages
+
+# ci-tidy job only
+# RUN apt-get install --yes parallel
+# Install QEMU for testing cross compilation.
+
+# Only for cross jobs
+#RUN apt-get install --yes qemu-user
+# Install pkg-config for dpc++ builds and locally built spir-v
+#RUN apt-get install --yes pkg-config
+
+# always
+# Install spirv tools
+RUN apt-get install --yes spirv-tools
+
+# MUST HAVE ? Just some e.g. lit?
+# Set-up pip
+#RUN update-alternatives --install /usr/bin/pip pip `which pip3` 30
+
+# Install python packages
+# MUST HAVE ? Just some e.g. lit?
+RUN pip install lit
+RUN apt-get install --yes python3-colorama
+#RUN apt-get install --yes doxygen
+
+#RUN pip install cmakelint colorama flake8 lit pylint requests virtualenv yapf python-gitlab distro clang-format==19.1.0
+
+# FROM OUR CURRENT INSTALLS PLUS ANY NEW EXTRAS - if not already added
+# Install libhwloc-dev for dpc++ dependency
+# dpc++ only
+#RUN apt-get install --yes libhwloc-dev:amd64 libhwloc-dev:arm64 libhwloc-dev:i386 libhwloc-dev:riscv64
+
+# sudo needed for some edge cases?
+RUN apt-get -y install sudo
+
+# Overnight downloads only?
+#RUN apt-get -y install gh
+# zstd needed for caching MUST HAVE
+RUN apt install -y zstd
+
+#RUN apt install -y gnupg
+
+# ? In base ? MUST HAVE?
+RUN apt install -y gcc g++
+# RUN apt install -y file
+
+#  MUST HAVE
+RUN apt install -y ccache
