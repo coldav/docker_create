@@ -4,6 +4,9 @@ RUN apt-get update
 
 RUN apt-get install -y wget git build-essential
 
+RUN dpkg --add-architecture i386
+RUN dpkg --add-architecture arm64
+RUN dpkg --add-architecture riscv64
 
 # The main archive only hosts amd64 and i386, we need to add ports for arm64 and riscv64.
 RUN sed -i -e '/^Types:/,/^Signed-By:/{/Types:/{h;d};H;/^Signed-By:/{g;s|$|\nArchitectures: amd64,i386\n|p;g;s|URIs: [^\n]*|URIs: http://ports.ubuntu.com/ubuntu-ports|;s|$|\nArchitectures: arm64,riscv64|p;};d}' /etc/apt/sources.list.d/ubuntu.sources
@@ -25,13 +28,10 @@ RUN apt-get install --yes python3 python3-pip ninja-build
 # Install CI utility packages
 
 # Enable ability to install foreign packages for cross compilation
-RUN dpkg --add-architecture i386
-RUN dpkg --add-architecture arm64
-RUN dpkg --add-architecture riscv64
 
 # Install pkgconf for dpc++ builds and locally built spir-v
 RUN apt-get install --yes pkgconf:amd64 pkgconf:arm64 pkgconf:i386 pkgconf:riscv64
-
+# Install spirv tools
 RUN apt-get install --yes spirv-tools
 
 # Set-up pip
@@ -41,8 +41,10 @@ RUN update-alternatives --install /usr/bin/pip pip `which pip3` 30
 RUN apt-get install --yes python3-colorama pipx
 # python3-distro python3-flake8 python3-gitlab python3-requests python3-virtualenv python3-yapf pipx
 RUN PIPX_HOME=/usr/local/share/pipx PIPX_BIN_DIR=/usr/local/bin PIPX_MAN_DIR=/usr/local/share/man pipx install cmakelint lit pylint clang-format==19.1.0
-RUN apt-get -y install sudo
+# Install libhwloc-dev for dpc++ dependency
+RUN apt-get install --yes libhwloc-dev:amd64 libhwloc-dev:arm64 libhwloc-dev:i386 libhwloc-dev:riscv64
 
+RUN apt-get -y install sudo
 RUN apt install -y zstd
 RUN apt install -y gcc g++
 

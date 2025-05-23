@@ -4,6 +4,10 @@ RUN apt-get update
 
 RUN apt-get install -y wget git build-essential
 
+# Enable ability to install foreign packages for cross compilation
+RUN dpkg --add-architecture i386
+RUN dpkg --add-architecture arm64
+RUN dpkg --add-architecture riscv64
 
 # The main archive only hosts amd64 and i386, we need to add ports for arm64 and riscv64.
 RUN sed -i -e '/^deb /{h;s|deb |&[arch=amd64,i386] |p;g;s|deb http://[^ ]*|deb [arch=arm64,riscv64] http://ports.ubuntu.com/ubuntu-ports|p;d}' /etc/apt/sources.list
@@ -55,7 +59,7 @@ RUN apt install -y gcc g++
 # RUN apt install -y file
 # Install libhwloc-dev for dpc++ dependency
 # dpc++ only
-#RUN apt-get install --yes libhwloc-dev:amd64 libhwloc-dev:arm64 libhwloc-dev:i386 libhwloc-dev:riscv64
+RUN apt-get install --yes libhwloc-dev:amd64 libhwloc-dev:arm64 libhwloc-dev:i386 libhwloc-dev:riscv64
 
 #RUN pip install cmakelint colorama flake8 lit pylint requests virtualenv yapf python-gitlab distro clang-format==19.1.0
 #RUN pip install virtualenv cookiecutter

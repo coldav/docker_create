@@ -37,7 +37,18 @@ jobs:
           docker push $REGISTRY/ock_ubuntu_$VERSION:base
         done
 
-  publish-try-docker-images:
+  publish-try-docker-images_22_04:
+      needs: publish-docker-images
+      runs-on: ubuntu-22.04
+      container:
+        image: ghcr.io/coldav/ock_ubuntu_22.04:base
+        volumes:
+          - ${{github.workspace}}:${{github.workspace}}
+      steps:
+        - name: Do nothing
+          run: echo done
+
+  publish-try-docker-images_24_04:
       needs: publish-docker-images
       runs-on: ubuntu-24.04
       container:
