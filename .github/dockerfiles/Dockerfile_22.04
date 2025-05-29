@@ -50,6 +50,14 @@ RUN apt-get -y install sudo
 RUN apt install -y zstd
 RUN apt install -y ccache
 
+# install gh
+RUN mkdir -p -m 755 /etc/apt/keyrings
+RUN out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg && cat $out > /etc/apt/keyrings/githubcli-archive-keyring.gpg
+RUN chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list
+
+RUN sudo apt update
+RUN sudo apt install gh -y
+
 
 # Overnight downloads only?
 #RUN apt-get -y install gh
