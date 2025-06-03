@@ -16,6 +16,8 @@ RUN apt-get install --yes cmake libtinfo-dev
 
 RUN apt-get update
 
+# Install 32-bit requirements
+RUN apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32ncurses-dev
 # Install AArch64 requirements
 RUN apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 # Install RISC-V requirements

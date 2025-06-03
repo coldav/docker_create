@@ -17,11 +17,12 @@ RUN apt-get install --yes cmake libtinfo-dev
 
 # Add llvm repos
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor - | tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
-#RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main' | tee /etc/apt/sources.list.d/llvm.list >/dev/null
 RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main' | tee -a /etc/apt/sources.list.d/llvm.list >/dev/null
 RUN echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-20 main' | tee -a /etc/apt/sources.list.d/llvm.list >/dev/null
 RUN apt-get update
 
+# Install 32-bit requirements
+RUN apt-get install --yes gcc-multilib g++-multilib libc6-dev:i386 lib32tinfo-dev lib32ncurses-dev
 # Install AArch64 requirements
 RUN apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 # Install RISC-V requirements
