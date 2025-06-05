@@ -27,7 +27,8 @@ RUN apt-get install --yes gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 RUN apt-get install --yes gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
 # Install recommended packages
 RUN apt-get install --yes python3 python3-pip ninja-build
-# Install CI utility packages
+# Install QEMU for testing cross compilation.
+RUN apt-get install --yes qemu-user
 # Install pkgconf for dpc++ builds and locally built spir-v
 RUN apt-get install --yes pkgconf:amd64 pkgconf:arm64 pkgconf:i386 pkgconf:riscv64
 # Install spirv tools
@@ -37,7 +38,7 @@ RUN apt-get install --yes spirv-tools
 RUN update-alternatives --install /usr/bin/pip pip `which pip3` 30
 
 # Install python packages
-RUN apt-get install --yes python3-colorama pipx
+RUN apt-get install --yes python3-colorama python3-virtualenv pipx
 RUN PIPX_HOME=/usr/local/share/pipx PIPX_BIN_DIR=/usr/local/bin PIPX_MAN_DIR=/usr/local/share/man pipx install cmakelint lit pylint clang-format==19.1.0
 # Install libhwloc-dev for dpc++ dependency
 RUN apt-get install --yes libhwloc-dev:amd64 libhwloc-dev:arm64 libhwloc-dev:i386 libhwloc-dev:riscv64
