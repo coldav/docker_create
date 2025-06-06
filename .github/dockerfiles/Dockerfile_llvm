@@ -1,0 +1,8 @@
+# Inherit from the given image
+ARG IMAGE
+
+FROM $IMAGE AS base
+ARG LLVM
+
+RUN apt-get install -y clang-tidy-${LLVM} llvm-${LLVM}-dev liblld-${LLVM}-dev libclang-${LLVM}-dev
+RUN apt-get install -y libpolly-${LLVM}-dev clang-${LLVM}

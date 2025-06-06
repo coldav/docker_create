@@ -35,52 +35,64 @@ jobs:
       run: |
         DOCKERFILE=${{ github.workspace }}/.github/dockerfiles/Dockerfile_22.04-x86-64
         VERSION=${DOCKERFILE##*_}
-        docker build . -f $DOCKERFILE --tag $REGISTRY/ock_ubuntu_$VERSION:latest
-        docker push $REGISTRY/ock_ubuntu_$VERSION:latest
-  publish-docker-images-24-04-x86-64:
-    runs-on: ubuntu-latest
-    permissions:
-      attestations: write
-      id-token: write
-      packages: write
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push the Docker images
-      run: |
-        DOCKERFILE=${{ github.workspace }}/.github/dockerfiles/Dockerfile_24.04-x86-64
-        VERSION=${DOCKERFILE##*_}
-        docker build . -f $DOCKERFILE --tag $REGISTRY/ock_ubuntu_$VERSION:latest
-        docker push $REGISTRY/ock_ubuntu_$VERSION:latest
+        # docker build . -f $DOCKERFILE --tag $REGISTRY/ock_ubuntu_$VERSION:latest
+        # docker push $REGISTRY/ock_ubuntu_$VERSION:latest
+        set -x
+
+        for llvm in 19 20; do \
+          docker build \
+          --file=${{ github.workspace }}/.github/dockerfiles/Dockerfile_llvm \
+          --tag="$REGISTRY/ock_ubuntu_$VERSION:llvm_${llvm}_latest" \
+          --build-arg IMAGE="$REGISTRY/ock_ubuntu_$VERSION:latest" \
+          --build-arg LLVM=${llvm} \
+          .; \
+          docker push $REGISTRY/ock_ubuntu_$VERSION:llvm_${llvm}_latest; \
+        done
+
+  # publish-docker-images-24-04-x86-64:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     attestations: write
+  #     id-token: write
+  #     packages: write
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+  #   - name: Login to GitHub Container Registry
+  #     uses: docker/login-action@v3
+  #     with:
+  #       registry: ghcr.io
+  #       username: ${{ github.actor }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Build and push the Docker images
+  #     run: |
+  #       DOCKERFILE=${{ github.workspace }}/.github/dockerfiles/Dockerfile_24.04-x86-64
+  #       VERSION=${DOCKERFILE##*_}
+  #       docker build . -f $DOCKERFILE --tag $REGISTRY/ock_ubuntu_$VERSION:latest
+  #       docker push $REGISTRY/ock_ubuntu_$VERSION:latest
 
 
-  publish-docker-images-aarch64:
-    runs-on: ubuntu-22.04-arm
-    permissions:
-      attestations: write
-      id-token: write
-      packages: write
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push the Docker images
-      run: |
-        DOCKERFILE=${{ github.workspace }}/.github/dockerfiles/Dockerfile_22.04-aarch64
-        VERSION=${DOCKERFILE##*_}
-        docker build . -f $DOCKERFILE --tag $REGISTRY/ock_ubuntu_$VERSION:latest
-        docker push $REGISTRY/ock_ubuntu_$VERSION:latest
+  # publish-docker-images-aarch64:
+  #   runs-on: ubuntu-22.04-arm
+  #   permissions:
+  #     attestations: write
+  #     id-token: write
+  #     packages: write
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+  #   - name: Login to GitHub Container Registry
+  #     uses: docker/login-action@v3
+  #     with:
+  #       registry: ghcr.io
+  #       username: ${{ github.actor }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Build and push the Docker images
+  #     run: |
+  #       DOCKERFILE=${{ github.workspace }}/.github/dockerfiles/Dockerfile_22.04-aarch64
+  #       VERSION=${DOCKERFILE##*_}
+  #       docker build . -f $DOCKERFILE --tag $REGISTRY/ock_ubuntu_$VERSION:latest
+  #       docker push $REGISTRY/ock_ubuntu_$VERSION:latest
 
   publish-try-docker-images_22_04:
       needs: publish-docker-images-22-04-x86-64
@@ -93,24 +105,46 @@ jobs:
         - name: Do nothing
           run: echo done
 
-  publish-try-docker-images_24_04:
-      needs: publish-docker-images-24-04-x86-64
-      runs-on: ubuntu-24.04
+  publish-try-docker-images_22_04_llvm_19:
+      needs: publish-docker-images-22-04-x86-64
+      runs-on: ubuntu-22.04
       container:
-        image: ghcr.io/coldav/ock_ubuntu_24.04-x86-64:latest
+        image: ghcr.io/coldav/ock_ubuntu_22.04-x86-64:llvm_19_latest
         volumes:
           - ${{github.workspace}}:${{github.workspace}}
       steps:
         - name: Do nothing
           run: echo done
 
-  publish-try-docker-images_22_04-aarch64:
-      needs: publish-docker-images-aarch64
-      runs-on: ubuntu-22.04-arm
+  publish-try-docker-images_22_04_llvm_20:
+      needs: publish-docker-images-22-04-x86-64
+      runs-on: ubuntu-22.04
       container:
-        image: ghcr.io/coldav/ock_ubuntu_22.04-aarch64:latest
+        image: ghcr.io/coldav/ock_ubuntu_22.04-x86-64:llvm_20_latest
         volumes:
           - ${{github.workspace}}:${{github.workspace}}
       steps:
         - name: Do nothing
           run: echo done
+
+  # publish-try-docker-images_24_04:
+  #     needs: publish-docker-images-24-04-x86-64
+  #     runs-on: ubuntu-24.04
+  #     container:
+  #       image: ghcr.io/coldav/ock_ubuntu_24.04-x86-64:latest
+  #       volumes:
+  #         - ${{github.workspace}}:${{github.workspace}}
+  #     steps:
+  #       - name: Do nothing
+  #         run: echo done
+
+  # publish-try-docker-images_22_04-aarch64:
+  #     needs: publish-docker-images-aarch64
+  #     runs-on: ubuntu-22.04-arm
+  #     container:
+  #       image: ghcr.io/coldav/ock_ubuntu_22.04-aarch64:latest
+  #       volumes:
+  #         - ${{github.workspace}}:${{github.workspace}}
+  #     steps:
+  #       - name: Do nothing
+  #         run: echo done
